@@ -9,7 +9,6 @@ namespace SpotifyKeys
     static class Program
     {
         //private static RainmeterControl Rainmeter;
-        private static int CtrlVolume = 20;
 
         private static HotKey KeyVolumeUp;
         private static HotKey KeyVolumeDown;
@@ -93,10 +92,11 @@ namespace SpotifyKeys
                 {
                     byte level = (byte)fLevel.Value;
                     byte newLevel = level;
-                    while ((newLevel == level) && (CtrlVolume > 0))
+                    byte ctrlLevel = (byte)Math.Round(Math.Pow(1250 * level, 1.0/3)); // calculate ctrlLevel from current volume, incase user or other program changes volume level
+                    while ((newLevel == level) && (ctrlLevel > 0))
                     {
-                        CtrlVolume--;
-                        newLevel = (byte)Math.Truncate(Math.Pow(CtrlVolume, 3) / 1250);
+                        ctrlLevel--;
+                        newLevel = (byte)Math.Truncate(Math.Pow(ctrlLevel, 3) / 1250);
                     }
                     VolumeMixer.SetVolume(pid, newLevel);
 
@@ -126,10 +126,13 @@ namespace SpotifyKeys
                 {
                     byte level = (byte)fLevel.Value;
                     byte newLevel = level;
+                    byte ctrlLevel = (byte)Math.Round(Math.Pow(1250*level, 1.0/3)); // calculate ctrlLevel from current volume, incase user or other program changes volume level
+                    Console.WriteLine(ctrlLevel);
                     while ((newLevel == level) && (newLevel < 100))
                     {
-                        CtrlVolume++;
-                        newLevel = (byte)Math.Truncate(Math.Pow(CtrlVolume, 3) / 1250);
+                        ctrlLevel++;
+                        newLevel = (byte)Math.Truncate(Math.Pow(ctrlLevel, 3) / 1250);
+                        Console.WriteLine(newLevel + " --- " + ctrlLevel);
                     }
                     VolumeMixer.SetVolume(pid, newLevel);
 
