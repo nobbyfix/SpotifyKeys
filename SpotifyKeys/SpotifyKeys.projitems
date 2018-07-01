@@ -3,7 +3,7 @@
   <PropertyGroup>
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
     <HasSharedItems>true</HasSharedItems>
-    <SharedGUID>6b0ba55d-f424-46f6-9eec-66185a4ee0a2</SharedGUID>
+    <SharedGUID>e6abd264-4e6f-41fb-b75b-b0e61bf0e55e</SharedGUID>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
     <Import_RootNamespace>SpotifyKeys</Import_RootNamespace>
