@@ -1,0 +1,18 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2026
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "SpotifyKeys", "SpotifyKeys\SpotifyKeys.shproj", "{6B0BA55D-F424-46F6-9EEC-66185A4EE0A2}"
+EndProject
+Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		SpotifyKeys\SpotifyKeys.projitems*{6b0ba55d-f424-46f6-9eec-66185a4ee0a2}*SharedItemsImports = 13
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {534169BD-24F4-4FBC-AA48-367FB1A3838D}
+	EndGlobalSection
+EndGlobal
