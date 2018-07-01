@@ -82,23 +82,23 @@ namespace SpotifyKeys
             Application.Exit();
         }
 
-        // method to decrease the volume
+        // method to decrease the volume level
         public static void VolumeDown(object sender, EventArgs e)
         {
             uint pid = Program.GetProcessID("Spotify");
             if (pid != 0)
             {
-                float? volumeO = VolumeMixer.GetVolume(pid);
-                if (volumeO != null)
+                float? fLevel = VolumeMixer.GetVolume(pid);
+                if (fLevel != null)
                 {
-                    int volume = (int)volumeO.Value;
-                    int newvolume = volume;
-                    while ((newvolume == volume) && (CtrlVolume > 0))
+                    byte level = (byte)fLevel.Value;
+                    byte newLevel = level;
+                    while ((newLevel == level) && (CtrlVolume > 0))
                     {
                         CtrlVolume--;
-                        newvolume = (byte)Math.Truncate(Math.Pow(CtrlVolume, 2) / 36);
+                        newLevel = (byte)Math.Truncate(Math.Pow(CtrlVolume, 3) / 1250);
                     }
-                    VolumeMixer.SetVolume(pid, newvolume);
+                    VolumeMixer.SetVolume(pid, newLevel);
 
                     /*
                     if (RainmeterControl.IsRainmeterRunning())
@@ -115,23 +115,23 @@ namespace SpotifyKeys
             }
         }
 
-        // method to increase the volume
+        // method to increase the volume level
         public static void VolumeUp(object sender, EventArgs e)
         {
             uint pid = Program.GetProcessID("Spotify");
             if (pid != 0)
             {
-                float? volumeO = VolumeMixer.GetVolume(pid);
-                if (volumeO != null)
+                float? fLevel = VolumeMixer.GetVolume(pid);
+                if (fLevel != null)
                 {
-                    int volume = (int)volumeO.Value;
-                    int newvolume = volume;
-                    while ((newvolume == volume) && (newvolume < 100))
+                    byte level = (byte)fLevel.Value;
+                    byte newLevel = level;
+                    while ((newLevel == level) && (newLevel < 100))
                     {
                         CtrlVolume++;
-                        newvolume = (byte)Math.Truncate(Math.Pow(CtrlVolume, 2) / 36);
+                        newLevel = (byte)Math.Truncate(Math.Pow(CtrlVolume, 3) / 1250);
                     }
-                    VolumeMixer.SetVolume(pid, newvolume);
+                    VolumeMixer.SetVolume(pid, newLevel);
 
                     /*
                     if (RainmeterControl.IsRainmeterRunning())
