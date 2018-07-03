@@ -8,8 +8,6 @@ namespace SpotifyKeys
 {
     static class Program
     {
-        //private static RainmeterControl Rainmeter;
-
         private static HotKey KeyVolumeUp;
         private static HotKey KeyVolumeDown;
 
@@ -28,9 +26,6 @@ namespace SpotifyKeys
             {
                 return;
             }
-
-            // create object to control volumebar of Rainmeter
-            //Rainmeter = new RainmeterControl();
 
             // register default global hotkeys
             KeyVolumeUp = new HotKey(IntPtr.Zero, NativeMethods.GlobalAddAtom("SpotifyKeysVolumeUp"), defaultKeyUp, defaultKeyUpModifier, new EventHandler(VolumeUp));
@@ -77,7 +72,6 @@ namespace SpotifyKeys
         {
             KeyVolumeUp.Dispose();
             KeyVolumeDown.Dispose();
-            //Rainmeter.Dispose();
             Application.Exit();
         }
 
@@ -99,18 +93,6 @@ namespace SpotifyKeys
                         newLevel = (byte)Math.Truncate(Math.Pow(ctrlLevel, 3) / 1250);
                     }
                     VolumeMixer.SetVolume(pid, newLevel);
-
-                    /*
-                    if (RainmeterControl.IsRainmeterRunning())
-                    {
-                        RainmeterControl.ChangeSensitivity((int)Math.Truncate(25 + 0.45 * volume));
-                        if (!Rainmeter.TimerRunning)
-                        {
-                            RainmeterControl.RefreshVisualizer();
-                            Rainmeter.StartTimer();
-                        }
-                    }
-                    */
                 }
             }
         }
@@ -133,18 +115,6 @@ namespace SpotifyKeys
                         newLevel = (byte)Math.Truncate(Math.Pow(ctrlLevel, 3) / 1250);
                     }
                     VolumeMixer.SetVolume(pid, newLevel);
-
-                    /*
-                    if (RainmeterControl.IsRainmeterRunning())
-                    {
-                        RainmeterControl.ChangeSensitivity((int)Math.Truncate(70 - 0.45 * volume));
-                        if (!Rainmeter.TimerRunning)
-                        {
-                            RainmeterControl.RefreshVisualizer();
-                            Rainmeter.StartTimer();
-                        }
-                    }
-                    */
                 }
             }
         }
