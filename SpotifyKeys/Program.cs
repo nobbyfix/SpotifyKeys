@@ -45,11 +45,15 @@ namespace SpotifyKeys
                 ContextMenu = contextMenu,
                 Visible = true
             };
-            
+
             Application.Run();
         }
 
-        // retrive process id by process name
+        /// <summary>
+        /// Method to retrive the process id of a process by it's name
+        /// </summary>
+        /// <param name="name">process name</param>
+        /// <returns></returns>
         public static uint GetProcessID(string name)
         {
             Process[] processes = Process.GetProcessesByName(name);
@@ -67,7 +71,10 @@ namespace SpotifyKeys
             }
             return 0;
         }
-        
+
+        /// <summary>
+        /// Method which exits the application.
+        /// </summary>
         private static void ExitApplication(object sender, EventArgs e)
         {
             KeyVolumeUp.Dispose();
@@ -75,8 +82,11 @@ namespace SpotifyKeys
             Application.Exit();
         }
 
-        // method to decrease the volume level
-        public static void VolumeDown(object sender, EventArgs e)
+        /// <summary>
+        /// Method to change the volume up or down.
+        /// </summary>
+        /// <param name="volumeUp">Determined whether volume gets increased or decreased. True for increase.</param>
+        private static void ChangeVolume(bool volumeUp)
         {
             uint pid = Program.GetProcessID("Spotify");
             if (pid != 0)
@@ -84,7 +94,7 @@ namespace SpotifyKeys
                 float? fLevel = VolumeMixer.GetVolume(pid);
                 if (fLevel != null)
                 {
-                    if(fLevel > 0)
+                    if ((fLevel < 100 && volumeUp) || (fLevel > 0 && !volumeUp))
                     {
                         float? fMasterVolume = VolumeMixer.GetMasterVolume();
                         if (fMasterVolume != null)
@@ -98,10 +108,22 @@ namespace SpotifyKeys
                             float level = fLevel.Value;
                             float newLevel = level;
                             byte step = (byte)Math.Round(Math.Pow(multiplier * level, 1f / 4)); // calculate ctrlLevel from current volume, incase user or other program changes volume level
-                            while ((newLevel == level) && (step > 0))
+
+                            if (volumeUp)
                             {
-                                step--;
-                                newLevel = (float)Math.Truncate(Math.Pow(step, 4) / multiplier * 100) / 100;
+                                while ((newLevel == level) && (newLevel < 100))
+                                {
+                                    step++;
+                                    newLevel = (float)Math.Truncate(Math.Pow(step, 4) / multiplier * 100) / 100;
+                                }
+                            }
+                            else
+                            {
+                                while ((newLevel == level) && (step > 0))
+                                {
+                                    step--;
+                                    newLevel = (float)Math.Truncate(Math.Pow(step, 4) / multiplier * 100) / 100;
+                                }
                             }
                             VolumeMixer.SetVolume(pid, newLevel);
                         }
@@ -113,36 +135,13 @@ namespace SpotifyKeys
         // method to increase the volume level
         public static void VolumeUp(object sender, EventArgs e)
         {
-            uint pid = Program.GetProcessID("Spotify");
-            if (pid != 0)
-            {
-                float? fLevel = VolumeMixer.GetVolume(pid);
-                if (fLevel != null)
-                {
-                    if(fLevel < 100)
-                    {
-                        float? fMasterVolume = VolumeMixer.GetMasterVolume();
-                        if(fMasterVolume != null)
-                        {
-                            // calculate amount of steps using master volume
-                            float masterVolume = fMasterVolume.Value;
-                            double steps = Math.Round(2f / 5 * masterVolume);
-                            steps = (steps < 1) ? 1 : steps;
-                            double multiplier = Math.Pow(steps, 4) / 100;
+            ChangeVolume(true);
+        }
 
-                            float level = fLevel.Value;
-                            float newLevel = level;
-                            byte step = (byte)Math.Round(Math.Pow(multiplier * level, 1f / 4)); // calculate ctrlLevel from current volume, incase user or other program changes volume level
-                            while ((newLevel == level) && (newLevel < 100))
-                            {
-                                step++;
-                                newLevel = (float)Math.Truncate(Math.Pow(step, 4) / multiplier * 100) / 100;
-                            }
-                            VolumeMixer.SetVolume(pid, newLevel);
-                        }
-                    }
-                }
-            }
+        // method to decrease the volume level
+        public static void VolumeDown(object sender, EventArgs e)
+        {
+            ChangeVolume(false);
         }
     }
 
