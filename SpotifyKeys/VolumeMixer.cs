@@ -9,7 +9,7 @@ namespace SpotifyKeys
         
         public static float? GetVolume(uint pid)
         {
-            ISimpleAudioVolume volume = GetAudioVolume(pid);
+            ISimpleAudioVolume volume = GetAudioVolumeObject(pid);
             if (volume != null)
             {
                 volume.GetMasterVolume(out float level);
@@ -21,7 +21,7 @@ namespace SpotifyKeys
 
         public static bool? GetMute(uint pid)
         {
-            ISimpleAudioVolume volume = GetAudioVolume(pid);
+            ISimpleAudioVolume volume = GetAudioVolumeObject(pid);
             if (volume != null)
             {
                 volume.GetMute(out bool mute);
@@ -33,7 +33,7 @@ namespace SpotifyKeys
 
         public static void SetVolume(uint pid, float level)
         {
-            ISimpleAudioVolume volume = GetAudioVolume(pid);
+            ISimpleAudioVolume volume = GetAudioVolumeObject(pid);
             if(volume != null)
             {
                 Guid guid = Guid.Empty;
@@ -44,7 +44,7 @@ namespace SpotifyKeys
 
         public static void SetMute(uint pid, bool mute)
         {
-            ISimpleAudioVolume volume = GetAudioVolume(pid);
+            ISimpleAudioVolume volume = GetAudioVolumeObject(pid);
             if (volume != null)
             {
                 Guid guid = Guid.Empty;
@@ -53,7 +53,7 @@ namespace SpotifyKeys
             }
         }
 
-        private static ISimpleAudioVolume GetAudioVolume(uint pid)
+        private static ISimpleAudioVolume GetAudioVolumeObject(uint pid)
         {
             // get current active speaker device
             IMMDeviceEnumerator deviceEnumerator = (IMMDeviceEnumerator)(new MMDeviceEnumerator());
@@ -88,6 +88,34 @@ namespace SpotifyKeys
             Marshal.ReleaseComObject(deviceEnumerator);
             return simpleAudioVolume;
         }
+
+        public static float? GetMasterVolume()
+        {
+            IAudioEndpointVolume audioEndpoint = GetAudioEndpointObject();
+            if(audioEndpoint != null)
+            {
+                audioEndpoint.GetMasterVolumeLevelScalar(out float level);
+                Marshal.ReleaseComObject(audioEndpoint);
+                return level * 100;
+            }
+            return null;
+        }
+
+        private static IAudioEndpointVolume GetAudioEndpointObject()
+        {
+            // get current active speaker device
+            IMMDeviceEnumerator deviceEnumerator = (IMMDeviceEnumerator)(new MMDeviceEnumerator());
+            deviceEnumerator.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia, out IMMDevice audioDevice);
+
+            // activate AudioEndpointVolume for current device
+            Guid iidAudioEndpointVolume = typeof(IAudioEndpointVolume).GUID;
+            audioDevice.Activate(ref iidAudioEndpointVolume, 0, IntPtr.Zero, out object obj);
+            IAudioEndpointVolume audioEndpointVolume = (IAudioEndpointVolume)obj;
+           
+            Marshal.ReleaseComObject(audioDevice);
+            Marshal.ReleaseComObject(deviceEnumerator);
+            return audioEndpointVolume;
+        }
     }
 
     [ComImport]
@@ -113,6 +141,7 @@ namespace SpotifyKeys
     [Guid("A95664D2-9614-4F35-A746-DE8DB63617E6"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
     internal interface IMMDeviceEnumerator
     {
+        [PreserveSig]
         int NotImpl1();
 
         [PreserveSig]
@@ -129,8 +158,11 @@ namespace SpotifyKeys
     [Guid("77AA99A0-1BD6-484F-8BC7-2C654C9A9B6F"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
     internal interface IAudioSessionManager2
     {
-        int NotImplemented1();
-        int NotImplemented2();
+        [PreserveSig]
+        int NotImpl1();
+
+        [PreserveSig]
+        int NotImpl2();
 
         [PreserveSig]
         int GetSessionEnumerator(out IAudioSessionEnumerator audioSessionEnumerator);
@@ -206,5 +238,30 @@ namespace SpotifyKeys
 
         [PreserveSig]
         int GetMute(out bool mute);
+    }
+
+    [Guid("5CDF2C82-841E-4546-9722-0CF74078229A"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+    internal interface IAudioEndpointVolume
+    {
+        [PreserveSig]
+        int NotImpl1();
+
+        [PreserveSig]
+        int NotImpl2();
+
+        [PreserveSig]
+        int GetChannelCount(out uint channelCount);
+        
+        [PreserveSig]
+        int SetMasterVolumeLevel(float levelDB, Guid eventContext);
+        
+        [PreserveSig]
+        int SetMasterVolumeLevelScalar(float level, Guid eventContext);
+
+        [PreserveSig]
+        int GetMasterVolumeLevel(out float levelDB);
+
+        [PreserveSig]
+        int GetMasterVolumeLevelScalar(out float level);
     }
 }

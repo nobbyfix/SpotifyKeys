@@ -86,15 +86,25 @@ namespace SpotifyKeys
                 {
                     if(fLevel > 0)
                     {
-                        float level = fLevel.Value;
-                        float newLevel = level;
-                        byte ctrlLevel = (byte)Math.Round(Math.Pow(1600 * level, 1.0 / 4)); // calculate ctrlLevel from current volume, incase user or other program changes volume level
-                        while ((newLevel == level) && (ctrlLevel > 0))
+                        float? fMasterVolume = VolumeMixer.GetMasterVolume();
+                        if (fMasterVolume != null)
                         {
-                            ctrlLevel--;
-                            newLevel = (float)Math.Truncate(Math.Pow(ctrlLevel, 4) / 16) / 100;
+                            // calculate amount of steps using master volume
+                            float masterVolume = fMasterVolume.Value;
+                            double steps = Math.Round(2f / 5 * masterVolume);
+                            steps = (steps < 1) ? 1 : steps;
+                            double multiplier = Math.Pow(steps, 4) / 100;
+
+                            float level = fLevel.Value;
+                            float newLevel = level;
+                            byte step = (byte)Math.Round(Math.Pow(multiplier * level, 1f / 4)); // calculate ctrlLevel from current volume, incase user or other program changes volume level
+                            while ((newLevel == level) && (step > 0))
+                            {
+                                step--;
+                                newLevel = (float)Math.Truncate(Math.Pow(step, 4) / multiplier * 100) / 100;
+                            }
+                            VolumeMixer.SetVolume(pid, newLevel);
                         }
-                        VolumeMixer.SetVolume(pid, newLevel);
                     }
                 }
             }
@@ -111,15 +121,25 @@ namespace SpotifyKeys
                 {
                     if(fLevel < 100)
                     {
-                        float level = fLevel.Value;
-                        float newLevel = level;
-                        byte ctrlLevel = (byte)Math.Round(Math.Pow(1600 * level, 1.0 / 4)); // calculate ctrlLevel from current volume, incase user or other program changes volume level
-                        while ((newLevel == level) && (newLevel < 100))
+                        float? fMasterVolume = VolumeMixer.GetMasterVolume();
+                        if(fMasterVolume != null)
                         {
-                            ctrlLevel++;
-                            newLevel = (float)Math.Truncate(Math.Pow(ctrlLevel, 4) / 16) / 100;
+                            // calculate amount of steps using master volume
+                            float masterVolume = fMasterVolume.Value;
+                            double steps = Math.Round(2f / 5 * masterVolume);
+                            steps = (steps < 1) ? 1 : steps;
+                            double multiplier = Math.Pow(steps, 4) / 100;
+
+                            float level = fLevel.Value;
+                            float newLevel = level;
+                            byte step = (byte)Math.Round(Math.Pow(multiplier * level, 1f / 4)); // calculate ctrlLevel from current volume, incase user or other program changes volume level
+                            while ((newLevel == level) && (newLevel < 100))
+                            {
+                                step++;
+                                newLevel = (float)Math.Truncate(Math.Pow(step, 4) / multiplier * 100) / 100;
+                            }
+                            VolumeMixer.SetVolume(pid, newLevel);
                         }
-                        VolumeMixer.SetVolume(pid, newLevel);
                     }
                 }
             }
