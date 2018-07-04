@@ -84,15 +84,18 @@ namespace SpotifyKeys
                 float? fLevel = VolumeMixer.GetVolume(pid);
                 if (fLevel != null)
                 {
-                    byte level = (byte)fLevel.Value;
-                    byte newLevel = level;
-                    byte ctrlLevel = (byte)Math.Round(Math.Pow(1250 * level, 1.0/3)); // calculate ctrlLevel from current volume, incase user or other program changes volume level
-                    while ((newLevel == level) && (ctrlLevel > 0))
+                    if(fLevel > 0)
                     {
-                        ctrlLevel--;
-                        newLevel = (byte)Math.Truncate(Math.Pow(ctrlLevel, 3) / 1250);
+                        float level = fLevel.Value;
+                        float newLevel = level;
+                        byte ctrlLevel = (byte)Math.Round(Math.Pow(1600 * level, 1.0 / 4)); // calculate ctrlLevel from current volume, incase user or other program changes volume level
+                        while ((newLevel == level) && (ctrlLevel > 0))
+                        {
+                            ctrlLevel--;
+                            newLevel = (float)Math.Truncate(Math.Pow(ctrlLevel, 4) / 16) / 100;
+                        }
+                        VolumeMixer.SetVolume(pid, newLevel);
                     }
-                    VolumeMixer.SetVolume(pid, newLevel);
                 }
             }
         }
@@ -106,15 +109,18 @@ namespace SpotifyKeys
                 float? fLevel = VolumeMixer.GetVolume(pid);
                 if (fLevel != null)
                 {
-                    byte level = (byte)fLevel.Value;
-                    byte newLevel = level;
-                    byte ctrlLevel = (byte)Math.Round(Math.Pow(1250*level, 1.0/3)); // calculate ctrlLevel from current volume, incase user or other program changes volume level
-                    while ((newLevel == level) && (newLevel < 100))
+                    if(fLevel < 100)
                     {
-                        ctrlLevel++;
-                        newLevel = (byte)Math.Truncate(Math.Pow(ctrlLevel, 3) / 1250);
+                        float level = fLevel.Value;
+                        float newLevel = level;
+                        byte ctrlLevel = (byte)Math.Round(Math.Pow(1600 * level, 1.0 / 4)); // calculate ctrlLevel from current volume, incase user or other program changes volume level
+                        while ((newLevel == level) && (newLevel < 100))
+                        {
+                            ctrlLevel++;
+                            newLevel = (float)Math.Truncate(Math.Pow(ctrlLevel, 4) / 16) / 100;
+                        }
+                        VolumeMixer.SetVolume(pid, newLevel);
                     }
-                    VolumeMixer.SetVolume(pid, newLevel);
                 }
             }
         }
