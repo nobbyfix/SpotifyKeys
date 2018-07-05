@@ -8,8 +8,10 @@ namespace SpotifyKeys
 {
     static class Program
     {
-        private static HotKey KeyVolumeUp;
-        private static HotKey KeyVolumeDown;
+        private static HotKey keyVolumeUp;
+        private static HotKey keyVolumeDown;
+
+        private static NotifyIcon trayIcon;
 
         [STAThread]
         public static void Main()
@@ -28,17 +30,17 @@ namespace SpotifyKeys
             }
 
             // register default global hotkeys
-            KeyVolumeUp = new HotKey(IntPtr.Zero, NativeMethods.GlobalAddAtom("SpotifyKeysVolumeUp"), defaultKeyUp, defaultKeyUpModifier, new EventHandler(VolumeUp));
-            KeyVolumeUp.RegisterHotKey();
-            KeyVolumeDown = new HotKey(IntPtr.Zero, NativeMethods.GlobalAddAtom("SpotifyKeysVolumeDown"), defaultKeyDown, defaultKeyDownModifier, new EventHandler(VolumeDown));
-            KeyVolumeDown.RegisterHotKey();
+            keyVolumeUp = new HotKey(IntPtr.Zero, NativeMethods.GlobalAddAtom("SpotifyKeysVolumeUp"), defaultKeyUp, defaultKeyUpModifier, new EventHandler(VolumeUp));
+            keyVolumeUp.RegisterHotKey();
+            keyVolumeDown = new HotKey(IntPtr.Zero, NativeMethods.GlobalAddAtom("SpotifyKeysVolumeDown"), defaultKeyDown, defaultKeyDownModifier, new EventHandler(VolumeDown));
+            keyVolumeDown.RegisterHotKey();
 
-            // create an icon in the tastbar to close the application
+            // create an icon in the taskbar to close the application
             ContextMenu contextMenu = new ContextMenu();
             MenuItem menuItem = new MenuItem(Resources.exit);
             menuItem.Click += new EventHandler(ExitApplication);
             contextMenu.MenuItems.Add(0, menuItem);
-            NotifyIcon trayIcon = new NotifyIcon
+            trayIcon = new NotifyIcon()
             {
                 Text = Resources.appName,
                 Icon = new Icon(SystemIcons.Application, 40, 40), // default application icon is used, may be changed
@@ -54,7 +56,7 @@ namespace SpotifyKeys
         /// </summary>
         /// <param name="name">process name</param>
         /// <returns></returns>
-        public static uint GetProcessID(string name)
+        public static uint GetWindowThreadProcessId(string name)
         {
             Process[] processes = Process.GetProcessesByName(name);
             if (processes.Length > 0)
@@ -77,8 +79,9 @@ namespace SpotifyKeys
         /// </summary>
         private static void ExitApplication(object sender, EventArgs e)
         {
-            KeyVolumeUp.Dispose();
-            KeyVolumeDown.Dispose();
+            keyVolumeUp.Dispose();
+            keyVolumeDown.Dispose();
+            trayIcon.Dispose();
             Application.Exit();
         }
 
@@ -88,7 +91,7 @@ namespace SpotifyKeys
         /// <param name="volumeUp">Determined whether volume gets increased or decreased. True for increase.</param>
         private static void ChangeVolume(bool volumeUp)
         {
-            uint pid = Program.GetProcessID("Spotify");
+            uint pid = Program.GetWindowThreadProcessId("Spotify");
             if (pid != 0)
             {
                 float? fLevel = VolumeMixer.GetVolume(pid);

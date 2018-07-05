@@ -5,13 +5,13 @@ namespace SpotifyKeys
 {
     public class HotKey : IMessageFilter, IDisposable
     {
-        bool Disposed = false;
-
-        private readonly IntPtr Handle;
-        private readonly int Id;
-        private readonly Keys Key;
-        private readonly KeyModifier[] Modifier;
-        private event EventHandler HotKeyPressed;
+        private bool disposed = false;
+        
+        private readonly IntPtr handle;
+        private readonly int id;
+        private readonly Keys key;
+        private readonly KeyModifier[] modifier;
+        private event EventHandler hotKeyPressed;
 
         public HotKey(IntPtr handle, int id, Keys key, KeyModifier[] modifier, EventHandler hotKeyPressed)
         {
@@ -24,30 +24,30 @@ namespace SpotifyKeys
             if(hotKeyPressed == null)
                 throw new System.ComponentModel.InvalidEnumArgumentException("The HotKeyPressedEvent cannot be null.");
 
-            Handle = handle;
-            Id = id;
-            Key = key;
-            Modifier = modifier;
-            HotKeyPressed += hotKeyPressed;
+            this.handle = handle;
+            this.id = id;
+            this.key = key;
+            this.modifier = modifier;
+            this.hotKeyPressed += hotKeyPressed;
         }
 
         public void RegisterHotKey()
         {
             // convert from enum to numeric value
             int mod = 0;
-            foreach(KeyModifier modifier in Modifier)
+            foreach(KeyModifier modifier in this.modifier)
                 mod = mod + (int)modifier;
 
             // register hotkey
-            bool isKeyRegisterd = NativeMethods.RegisterHotKey(Handle, Id, mod, Key);
+            bool isKeyRegisterd = NativeMethods.RegisterHotKey(handle, id, mod, key);
             
             // check if function failed
             if (!isKeyRegisterd)
             {
-                NativeMethods.UnregisterHotKey(IntPtr.Zero, Id);
+                NativeMethods.UnregisterHotKey(IntPtr.Zero, id);
 
                 // retry, if failed again throw exception
-                isKeyRegisterd = NativeMethods.RegisterHotKey(Handle, Id, mod, Key);
+                isKeyRegisterd = NativeMethods.RegisterHotKey(handle, id, mod, key);
                 if (!isKeyRegisterd)
                     throw new InvalidOperationException("The hotkey is in use.");
                 else
@@ -61,15 +61,14 @@ namespace SpotifyKeys
         public bool PreFilterMessage(ref Message m)
         {
             const int WM_HOTKEY = 0x0312;
-            if (m.Msg == WM_HOTKEY && m.HWnd == Handle && m.WParam == (IntPtr) Id && HotKeyPressed != null)
+            if (m.Msg == WM_HOTKEY && m.HWnd == handle && m.WParam == (IntPtr) id && hotKeyPressed != null)
             {
-                HotKeyPressed(this, EventArgs.Empty); 
+                hotKeyPressed(this, EventArgs.Empty); 
                 return true;
             }
             return false;
         }
-
-
+        
         public void Dispose()
         {
             Dispose(true);
@@ -78,15 +77,15 @@ namespace SpotifyKeys
 
         protected virtual void Dispose(bool disposing)
         {
-            if (Disposed)
+            if (disposed)
                 return;
 
             if (disposing)
             {
                 Application.RemoveMessageFilter(this);
-                NativeMethods.UnregisterHotKey(Handle, Id);
+                NativeMethods.UnregisterHotKey(handle, id);
             }
-            Disposed = true;
+            disposed = true;
         }
     }
 }
