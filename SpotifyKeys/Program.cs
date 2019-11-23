@@ -40,7 +40,7 @@ namespace SpotifyKeys
             MenuItem menuItem = new MenuItem(Resources.exit);
             menuItem.Click += new EventHandler(ExitApplication);
             contextMenu.MenuItems.Add(0, menuItem);
-            trayIcon = new NotifyIcon()
+            trayIcon = new NotifyIcon
             {
                 Text = Resources.appName,
                 Icon = new Icon(SystemIcons.Application, 40, 40), // default application icon is used, may be changed

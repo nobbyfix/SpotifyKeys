@@ -35,8 +35,8 @@ namespace SpotifyKeys
         {
             // convert from enum to numeric value
             int mod = 0;
-            foreach(KeyModifier modifier in this.modifier)
-                mod = mod + (int)modifier;
+            foreach(KeyModifier _modifier in modifier)
+                mod += (int)_modifier;
 
             // register hotkey
             bool isKeyRegisterd = NativeMethods.RegisterHotKey(handle, id, mod, key);
